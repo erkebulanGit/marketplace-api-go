@@ -4,6 +4,7 @@ import (
 	"log"
 	"marketplace/database"
 	"marketplace/handlers"
+	"marketplace/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,19 +14,23 @@ func main() {
 
 	r := gin.Default()
 
-	r.POST("/users", handlers.CreateUser)
-	r.GET("/users/:id", handlers.GetUserByID)
-
-	r.GET("/categories", handlers.GetCategories)
-	r.POST("/categories", handlers.CreateCategory)
-
+	r.POST("/auth/register", handlers.Register)
+	r.POST("/auth/login", handlers.Login)
 	r.GET("/products", handlers.GetProducts)
-	r.POST("/products", handlers.CreateProduct)
 	r.GET("/products/:id", handlers.GetProductByID)
-	r.PUT("/products/:id", handlers.UpdateProduct)
-	r.DELETE("/products/:id", handlers.DeleteProduct)
+	r.GET("/categories", handlers.GetCategories)
 
-	r.POST("/products/:id/reviews", handlers.CreateReview)
+	protected := r.Group("/")
+	protected.Use(middleware.AuthRequired())
+	{
+		protected.GET("/auth/me", handlers.Me)
+		protected.GET("/users/:id", handlers.GetUserByID)
+		protected.POST("/categories", handlers.CreateCategory)
+		protected.POST("/products", handlers.CreateProduct)
+		protected.PUT("/products/:id", handlers.UpdateProduct)
+		protected.DELETE("/products/:id", handlers.DeleteProduct)
+		protected.POST("/products/:id/reviews", handlers.CreateReview)
+	}
 
 	log.Println("Server running on :8080")
 	r.Run(":8080")
