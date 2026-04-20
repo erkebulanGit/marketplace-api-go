@@ -2,7 +2,6 @@ package database
 
 import (
 	"log"
-	"marketplace/models"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -21,13 +20,6 @@ func Connect() {
 	if err != nil {
 		log.Fatal("Failed to connect:", err)
 	}
-
-	db.AutoMigrate(
-		&models.User{},
-		&models.Category{},
-		&models.Product{},
-		&models.Review{},
-	)
 
 	DB = db
 	log.Println("Database connected and migrated!")
