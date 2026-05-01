@@ -76,6 +76,7 @@ func CreateProduct(c *gin.Context) {
 
 	database.DB.Create(&product)
 	database.DB.Preload("User").Preload("Category").First(&product, product.ID)
+	go sendNotification(product.User.Email, product.Title)
 	c.JSON(http.StatusCreated, product)
 }
 
