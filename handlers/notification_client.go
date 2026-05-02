@@ -2,16 +2,23 @@ package handlers
 
 import (
 	"log"
+	"os"
 
 	"github.com/go-resty/resty/v2"
 )
-
-const notificationServiceURL = "http://localhost:8081"
 
 type NotificationPayload struct {
 	UserEmail    string `json:"user_email"`
 	ProductTitle string `json:"product_title"`
 	Message      string `json:"message"`
+}
+
+func getNotificationURL() string {
+	url := os.Getenv("NOTIFICATION_SERVICE_URL")
+	if url == "" {
+		url = "http://localhost:8081"
+	}
+	return url
 }
 
 func sendNotification(email string, productTitle string) {
@@ -26,12 +33,12 @@ func sendNotification(email string, productTitle string) {
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(payload).
-		Post(notificationServiceURL + "/notify")
+		Post(getNotificationURL() + "/notify")
 
 	if err != nil {
 		log.Println("Failed to send notification:", err)
 		return
 	}
 
-	log.Println("Notification service response:", resp.Status())
+	log.Println("Notification response:", resp.Status())
 }

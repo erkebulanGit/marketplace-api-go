@@ -20,3 +20,25 @@ run:
 
 deps:
 	go mod tidy
+
+
+docker-build:
+	docker-compose build
+
+docker-up:
+	docker-compose up
+
+docker-up-d:
+	docker-compose up -d
+
+docker-down:
+	docker-compose down
+
+docker-logs:
+	docker-compose logs -f
+
+docker-ps:
+	docker-compose ps
+
+docker-migrate-up:
+	docker-compose exec marketplace-api migrate -path /app/migrations -database "postgres://postgres:postgres@postgres:5432/marketplace?sslmode=disable" up

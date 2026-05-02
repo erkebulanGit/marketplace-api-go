@@ -1,0 +1,40 @@
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: marketplace-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: marketplace
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  marketplace-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketplace-api
+    ports:
+      - "5555:8080"
+    environment:
+      DATABASE_URL: host=postgres user=postgres password=postgres dbname=marketplace port=5432 sslmode=disable
+      NOTIFICATION_SERVICE_URL: http://notification-service:8081
+      JWT_SECRET: supersecretkey
+    depends_on:
+      - postgres
+    restart: on-failure
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    ports:
+      - "5556:8081"
+    restart: on-failure
+
+volumes:
+  postgres_data:
